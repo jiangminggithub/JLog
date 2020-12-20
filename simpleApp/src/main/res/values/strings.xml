@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">JLog</string>
+    <string name="json">{\"sites\":[{\"name\":\"JLog教程\",\"url\":\"github.com.jiangminggithub.JLog\"},{\"name\":\"google\",\"url\":\"www.google.com\"},{\"name\":\"微博\",\"url\":\"www.weibo.com\"}]}</string>
+    <string name="xml">&lt;div class=\"col search row-search-mobile\"&gt;&lt;form action=\"index.php\"&gt;&lt;input class=\"placeholder\" placeholder=\"搜索……\" name=\"s\" autocomplete=\"off\" /&gt;&lt;/form&gt;&lt;/div&gt;</string>
+</resources>
