@@ -22,9 +22,15 @@ Add it in your root build.gradle at the end of repositories:
 ### Step 2. Add the dependency
 
 ```groovy
+    // release dependency
 	dependencies {
 	        implementation 'com.github.jiangminggithub:JLog:1.0.0'
 	}
+    
+    // snapshot dependency
+    dependencies {
+    	        implementation 'com.github.jiangminggithub:JLog:master-SNAPSHOT'
+    }
 ```
 
 ## Use Config
@@ -690,12 +696,12 @@ public class AppLog {
 
 Thanks to [Orhan Obut](https://github.com/orhanobut)'s [logger](https://github.com/orhanobut/logger), it give me a better understanding of the logger.
 
-Thanks to [Elvis Hew](https://github.com/elvishew)'s [XLog](https://github.com/elvishew/xLog), it give me a good logcat framework, The JLog is based on XLog(com.elvishew:xlog:1.7.2) to redevelopment.
+Thanks to [Elvis Hew](https://github.com/elvishew)'s [XLog](https://github.com/elvishew/xLog), it give me a good logcat framework, this JLog project is based on XLog(com.elvishew:xlog:1.7.2) to redevelopment.
 
 ## License
 
 <pre>
-Copyright 2020 JiangMing
+Copyright 2020 Jiang Ming
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
