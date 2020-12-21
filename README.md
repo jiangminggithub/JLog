@@ -23,13 +23,17 @@ Add it in your root build.gradle at the end of repositories:
 
 ```groovy
     // release dependency
-	dependencies {
-	        implementation 'com.github.jiangminggithub:JLog:1.0.0'
+    // the following Github(1) and Gitee(2) can select any dependency
+	dependencies {    
+        // 1. JLog: https://github.com/jiangminggithub/JLog
+        implementation 'com.github.jiangminggithub:JLog:1.0.0'
+        // 2. JLog: https://gitee.com/jiangming_gitee/JLog
+        implementation 'com.gitee.jiangming_gitee:JLog:1.0.0'
 	}
     
     // snapshot dependency
     dependencies {
-    	        implementation 'com.github.jiangminggithub:JLog:master-SNAPSHOT'
+    	implementation 'com.github.jiangminggithub:JLog:master-SNAPSHOT'
     }
 ```
 
