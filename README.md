@@ -4,7 +4,7 @@ Powerful and flexible Android and Java log libraries that print logs to logcat, 
 
 ## Dependency
 
-Latest: [![](https://jitpack.io/v/jiangminggithub/JLog.svg)](https://jitpack.io/#jiangminggithub/JLog) 
+[![](https://jitpack.io/v/jiangminggithub/JLog.svg)](https://jitpack.io/#jiangminggithub/JLog) 
 
 1. [GitHub dependency config reference link](https://jitpack.io/#jiangminggithub/JLog/1.0.1) 
 
