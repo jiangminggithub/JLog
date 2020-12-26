@@ -38,7 +38,8 @@ import static com.jm.jlog.LogLevel.INFO;
 import static com.jm.jlog.simple.utils.AppUtils.getAppVersionInfo;
 
 /**
- * App Log Utils, powered by JLog.
+ * The AppLog is packaged based on {@link JLog} according to the situation of "android app".
+ * Of course, you can also use {@link JLog} directly.
  * <p>
  * Note: v/d/i/w/e/b are optional.
  *
@@ -52,13 +53,13 @@ import static com.jm.jlog.simple.utils.AppUtils.getAppVersionInfo;
  */
 public class AppLog {
     private static final String TAG = "AppLog";
-    private static final String APP_TAG = "JLogSimple";
-    private static final String LOG_FILE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
-    private static final String LOG_FILE_NAME = "jlog_app.log";
-    private static final String LOG_DIR_NAME = "log";
-    private static final long LOG_FILE_MAX_SIZE = 1024 * 1024 * 5;     // 5MB
-    private static final long LOG_FILE_DEBUG_MAX_SIZE = 1024 * 1024 * 20;    // 20MB, debug mode
-    private static final long LOG_MAX_TIME_MILLIS = 1000 * 60 * 60 * 24; // 24H
+    private static final String APP_TAG                         = "JLogSimple";
+    private static final String LOG_FILE_DATE_FORMAT            = "yyyy-MM-dd HH:mm:ss.SSS";
+    private static final String LOG_FILE_NAME                   = "jlog_app.log";
+    private static final String LOG_DIR_NAME                    = "log";
+    private static final long LOG_FILE_MAX_SIZE                 = 1024 * 1024 * 5;     // 5MB
+    private static final long LOG_FILE_DEBUG_MAX_SIZE           = 1024 * 1024 * 20;    // 20MB, debug mode
+    private static final long LOG_MAX_TIME_MILLIS               = 1000 * 60 * 60 * 24; // 24H
 
     /**
      * Initialize default log.
@@ -127,7 +128,7 @@ public class AppLog {
 
         // print app versionInfo and logFilePath
         String logFilePath = "App LogFilePath: " + logFileDirPath + File.separator + LOG_FILE_NAME;
-        ib(TAG, "init: " + SystemCompat.lineSeparator
+        ib(TAG, "initAndroidAndFileLogConfig: " + SystemCompat.lineSeparator
                 + getAppVersionInfo() + SystemCompat.lineSeparator
                 + logFilePath);
     }
@@ -177,7 +178,7 @@ public class AppLog {
         // print app versionInfo and logFilePath
         String logFilePath = "App LogFilePath: " + logFileDirPath + File.separator
                 + (isEmptyStr(logFileName) ? LOG_FILE_NAME : logFileName);
-        ib(TAG, "init: " + SystemCompat.lineSeparator
+        ib(TAG, "initAndroidAndFileLogConfig: " + SystemCompat.lineSeparator
                 + getAppVersionInfo() + SystemCompat.lineSeparator
                 + logFilePath);
     }

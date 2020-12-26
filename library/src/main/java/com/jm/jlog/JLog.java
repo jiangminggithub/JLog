@@ -28,7 +28,6 @@ import com.jm.jlog.formatter.thread.ThreadFormatter;
 import com.jm.jlog.interceptor.Interceptor;
 import com.jm.jlog.internal.DefaultsFactory;
 import com.jm.jlog.internal.Platform;
-import com.jm.jlog.internal.util.StackTraceUtil;
 import com.jm.jlog.printer.Printer;
 import com.jm.jlog.printer.PrinterSet;
 
@@ -102,16 +101,8 @@ import com.jm.jlog.printer.PrinterSet;
  * <p>
  * <b>3. Build a dynamically generated {@link Logger}.</b>
  * <br>Call the {@link Logger.Builder#build()} of the returned {@link Logger.Builder}.
- * <p>
- * <b>4. Start to log.</b>
- * <br>The logging methods of a {@link Logger} is completely same as that ones in {@link JLog}.
- * <br>As a convenience, you can ignore the step 3, just call the logging methods of
- * {@link Logger.Builder}, it will automatically build a {@link Logger} and call the target
- * logging method.
- * <p>
- * <b>Compatibility:</b>
- * <p>
- * In order to be compatible with {@link android.util.Log}, all the methods of
+ *
+ * @author JiangMing.
  */
 public class JLog {
 
@@ -232,11 +223,12 @@ public class JLog {
     }
 
     /**
-     * Throw an IllegalStateException if not initialized.
+     * Throw an IllegalStateException trace if not initialized and Initialize default configuration.
      */
     static void assertInitialization() {
         if (!sIsInitialized) {
-            throw new IllegalStateException("Do you forget to initialize JLog?");
+            new IllegalStateException("Do you forget to initialize JLog ?").printStackTrace();
+            init(LogLevel.ALL);
         }
     }
 

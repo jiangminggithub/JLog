@@ -26,15 +26,10 @@ Add it in your root build.gradle at the end of repositories:
     // the following Github(1) and Gitee(2) can select any dependency
 	dependencies {    
         // 1. JLog: https://github.com/jiangminggithub/JLog
-        implementation 'com.github.jiangminggithub:JLog:1.0.0'
+        implementation 'com.github.jiangminggithub:JLog:1.0.1'
         // 2. JLog: https://gitee.com/jiangming_gitee/JLog
-        implementation 'com.gitee.jiangming_gitee:JLog:1.0.0'
+        implementation 'com.gitee.jiangming_gitee:JLog:1.0.1'
 	}
-    
-    // snapshot dependency
-    dependencies {
-    	implementation 'com.github.jiangminggithub:JLog:master-SNAPSHOT'
-    }
 ```
 
 ## Use Config
@@ -87,611 +82,283 @@ JLog.init(                                                 // Initialize JLog
 
 ## Simple use example
 
-### 1. simple link
+### 1. simple reference link
 
-[Simple reference link](https://github.com/jiangminggithub/JLog/blob/master/simpleApp/src/main/java/com/jm/jlog/simple/utils/AppLog.java)
+[Go to example project](https://github.com/jiangminggithub/JLog/tree/master/simpleApp)
 
-### 2. simple code
+[Go to how to use with AppLog](https://github.com/jiangminggithub/JLog/blob/master/simpleApp/src/main/java/com/jm/jlog/simple/utils/AppLog.java)
+
+[Android app ]
+
+### 2. simple use code
 
 ```java
 
 /**
- * App Log Utils, powered by JLog.
- * <p>
- * Note: v/d/i/w/e/b are optional.
- *
- * @author JiangMing.
- * @see #v  [v] for VERBOSE, [vb] for enableBorder log
- * @see #d  [d] for DEBUG, [db] for enableBorder log
- * @see #i  [i] for INFO, [ib] for enableBorder log
- * @see #w  [w] for WARNING, [wb] for enableBorder log
- * @see #e  [e] for ERROR, [eb] for enableBorder log
- * @see #b  [b] for enableBorder log
+ * 1. Default way to use.
  */
-public class AppLog {
-    private static final String TAG = "AppLog";
-    private static final String APP_TAG = "JLogSimple";
-    private static final String LOG_FILE_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
-    private static final String LOG_FILE_NAME = "jlog_app.log";
-    private static final String LOG_DIR_NAME = "log";
-    private static final long LOG_FILE_MAX_SIZE = 1024 * 1024 * 5;     // 5MB
-    private static final long LOG_FILE_DEBUG_MAX_SIZE = 1024 * 1024 * 20;    // 20MB, debug mode
-    private static final long LOG_MAX_TIME_MILLIS = 1000 * 60 * 60 * 24; // 24H
-
-    /**
-     * Initialize default log.
-     */
-    public static void init() {
-        JLog.init(ALL);
-    }
-
-    /**
-     * Initialize log with logLevel.
-     *
-     * @param logLevel The logLevel to print log level.
-     */
-    public static void init(int logLevel) {
-        JLog.init(logLevel);
-    }
-
-    /**
-     * Initialize log with logLevel and logTag.
-     *
-     * @param logLevel
-     * @param logTag
-     */
-    public static void init(int logLevel, String logTag) {
-        LogConfiguration.Builder builder = new LogConfiguration.Builder();
-        builder.logLevel(logLevel);
-        builder.tag(isEmptyStr(logTag) ? TAG : logTag);
-        JLog.init(logLevel);
-    }
-
-    /**
-     * Initialize log related configuration.
-     *
-     * @param context Android Context.
-     */
-    public static void initAndroidAndFileLogConfig(Context context, boolean isDebug) {
-        LogConfiguration.Builder builder = new LogConfiguration.Builder();
-        // specify log level, logs below this level won't be printed, default: LogLevel.ALL
-        builder.logLevel(isDebug ? ALL : INFO);
-        // specify TAG, default: "J-LOG"
-        builder.tag(APP_TAG);
-        LogConfiguration config = builder
-                .build();
-        // init the log file dir path
-        String logFileDirPath = context.getFilesDir().getAbsolutePath();
-        logFileDirPath += File.separator + LOG_DIR_NAME;
-        // printer that print the log using android.util.Log
-        Printer androidPrinter = new AndroidPrinter();
-        // printer that print(save) the log to file
-        Printer filePrinter = new ConditionMonitorFilePrinter
-                // specify the directory path of log file(s)
-                .Builder(logFileDirPath)
-                // default: ChangelessFileNameGenerator("jlog.log")
-                .fileNameGenerator(new ChangelessFileNameGenerator(LOG_FILE_NAME))
-                // default: FileSizeBackupStrategy(1024 * 1024)
-                .backupStrategy(new NeverBackupStrategy())
-                // default: NeverCleanStrategy()
-                .cleanStrategy(new FileMaxSizeAndMillisCleanStrategy(
-                        isDebug ? LOG_FILE_DEBUG_MAX_SIZE : LOG_FILE_MAX_SIZE,
-                        LOG_MAX_TIME_MILLIS))
-                // default: DefaultFlattener
-                .flattener(new DateFormatFlattener(LOG_FILE_DATE_FORMAT))
-                .build();
-        // init log config, specify log configuration and printers
-        JLog.init(config, androidPrinter, filePrinter);
-
-        // print app versionInfo and logFilePath
-        String logFilePath = "App LogFilePath: " + logFileDirPath + File.separator + LOG_FILE_NAME;
-        ib(TAG, "init: " + SystemCompat.lineSeparator
-                + getAppVersionInfo() + SystemCompat.lineSeparator
-                + logFilePath);
-    }
-
-    /**
-     * Initialize log related configuration.
-     *
-     * @param context          Android Context.
-     * @param logLevel         log Level.
-     * @param logTag           log logTag.
-     * @param logFileDirName   log File Dir Name.
-     * @param logFileName      log File Name.
-     * @param logFileMaxSize   log File MaxSize.
-     * @param logMaxTimeMillis log MaxTimeMillis.
-     * @param logDateFormat    log DateFormat.
-     */
-    public static void initAndroidAndFileLogConfig(Context context,
-                                                   int logLevel,
-                                                   String logTag,
-                                                   String logFileDirName,
-                                                   String logFileName,
-                                                   long logFileMaxSize,
-                                                   long logMaxTimeMillis,
-                                                   String logDateFormat) {
-        LogConfiguration config = new LogConfiguration.Builder()
-                .logLevel(logLevel)
-                .tag(isEmptyStr(logTag) ? TAG : logTag)
-                .build();
-        // init the log file dir path
-        String logFileDirPath = context.getFilesDir().getAbsolutePath();
-        logFileDirPath += File.separator
-                + (isEmptyStr(logFileDirName) ? LOG_DIR_NAME : logFileDirName);
-        // printer that print the log using android.util.Log
-        Printer androidPrinter = new AndroidPrinter();
-        // printer that print(save) the log to file
-        Printer filePrinter = new ConditionMonitorFilePrinter
-                .Builder(logFileDirPath)
-                .fileNameGenerator(new ChangelessFileNameGenerator(
-                        isEmptyStr(logFileName) ? LOG_FILE_NAME : logFileName))
-                .backupStrategy(new NeverBackupStrategy())
-                .cleanStrategy(new FileMaxSizeAndMillisCleanStrategy(logFileMaxSize, logMaxTimeMillis))
-                .flattener(new DateFormatFlattener(
-                        isEmptyStr(logDateFormat) ? LOG_FILE_DATE_FORMAT : logDateFormat))
-                .build();
-        // init log config, specify log configuration and printers
-        JLog.init(config, androidPrinter, filePrinter);
-        // print app versionInfo and logFilePath
-        String logFilePath = "App LogFilePath: " + logFileDirPath + File.separator
-                + (isEmptyStr(logFileName) ? LOG_FILE_NAME : logFileName);
-        ib(TAG, "init: " + SystemCompat.lineSeparator
-                + getAppVersionInfo() + SystemCompat.lineSeparator
-                + logFilePath);
-    }
-
-    //***************************** verbose log *******************************//
-
-    public static void v(Object msg) {
-        JLog.v(msg);
-    }
-
-    public static void v(String msg) {
-        JLog.v(msg);
-    }
-
-    public static void v(Object[] array) {
-        JLog.v(array);
-    }
-
-    public static void v(String format, Object... args) {
-        JLog.v(format, args);
-    }
-
-    public static void v(String msg, Throwable tw) {
-        JLog.v(msg, tw);
-    }
-
-    public static void v(String prefix, Object msg) {
-        JLog.v(prefix, msg);
-    }
-
-    public static void v(String prefix, String msg) {
-        JLog.v(prefix, msg);
-    }
-
-    public static void v(String prefix, String msg, Throwable tw) {
-        JLog.v(prefix, msg, tw);
-    }
-
-    public static void vb(Object msg) {
-        JLog.enableBorder().v(msg);
-    }
-
-    public static void vb(String msg) {
-        JLog.enableBorder().v(msg);
-    }
-
-    public static void vb(Object[] array) {
-        JLog.enableBorder().v(array);
-    }
-
-    public static void vb(String format, Object... args) {
-        JLog.enableBorder().v(format, args);
-    }
-
-    public static void vb(String msg, Throwable tw) {
-        JLog.enableBorder().v(msg, tw);
-    }
-
-    public static void vb(String prefix, Object msg) {
-        JLog.enableBorder().v(prefix, msg);
-    }
-
-    public static void vb(String prefix, String msg) {
-        JLog.enableBorder().v(prefix, msg);
-    }
-
-    public static void vb(String prefix, String msg, Throwable tw) {
-        JLog.enableBorder().v(prefix, msg, tw);
-    }
-
-    //***************************** debug log *******************************//
-
-    public static void d(Object msg) {
-        JLog.d(msg);
-    }
-
-    public static void d(String msg) {
-        JLog.d(msg);
-    }
-
-    public static void d(Object[] array) {
-        JLog.d(array);
-    }
-
-    public static void d(String format, Object... args) {
-        JLog.d(format, args);
-    }
-
-    public static void d(String msg, Throwable tw) {
-        JLog.d(msg, tw);
-    }
-
-    public static void d(String prefix, Object msg) {
-        JLog.d(prefix, msg);
-    }
-
-    public static void d(String prefix, String msg) {
-        JLog.d(prefix, msg);
-    }
-
-    public static void d(String prefix, String msg, Throwable tw) {
-        JLog.d(prefix, msg, tw);
-    }
-
-    public static void db(Object msg) {
-        JLog.enableBorder().d(msg);
-    }
-
-    public static void db(String msg) {
-        JLog.enableBorder().d(msg);
-    }
-
-    public static void db(Object[] array) {
-        JLog.enableBorder().d(array);
-    }
-
-    public static void db(String format, Object... args) {
-        JLog.enableBorder().d(format, args);
-    }
-
-    public static void db(String msg, Throwable tw) {
-        JLog.enableBorder().d(msg, tw);
-    }
-
-    public static void db(String prefix, Object msg) {
-        JLog.enableBorder().d(prefix, msg);
-    }
-
-    public static void db(String prefix, String msg) {
-        JLog.enableBorder().d(prefix, msg);
-    }
-
-    public static void db(String prefix, String msg, Throwable tw) {
-        JLog.enableBorder().d(prefix, msg, tw);
-    }
-
-    //**************************** info log *******************************//
-
-    public static void i(Object msg) {
-        JLog.i(msg);
-    }
-
-    public static void i(String msg) {
-        JLog.i(msg);
-    }
-
-    public static void i(Object[] array) {
-        JLog.i(array);
-    }
-
-    public static void i(String format, Object... args) {
-        JLog.i(format, args);
-    }
-
-    public static void i(String msg, Throwable tw) {
-        JLog.i(msg, tw);
-    }
-
-    public static void i(String prefix, Object msg) {
-        JLog.i(prefix, msg);
-    }
-
-    public static void i(String prefix, String msg) {
-        JLog.i(prefix, msg);
-    }
-
-    public static void i(String prefix, String msg, Throwable tw) {
-        JLog.i(prefix, msg, tw);
-    }
-
-    public static void ib(Object msg) {
-        JLog.enableBorder().i(msg);
-    }
-
-    public static void ib(String msg) {
-        JLog.enableBorder().i(msg);
-    }
-
-    public static void ib(Object[] array) {
-        JLog.enableBorder().i(array);
-    }
-
-    public static void ib(String format, Object... args) {
-        JLog.enableBorder().i(format, args);
-    }
-
-    public static void ib(String msg, Throwable tw) {
-        JLog.enableBorder().i(msg, tw);
-    }
-
-    public static void ib(String prefix, Object msg) {
-        JLog.enableBorder().i(prefix, msg);
-    }
-
-    public static void ib(String prefix, String msg) {
-        JLog.enableBorder().i(prefix, msg);
-    }
-
-    public static void ib(String prefix, String msg, Throwable tw) {
-        JLog.enableBorder().i(prefix, msg, tw);
-    }
-
-    //***************************** warn log *******************************//
-
-    public static void w(Object msg) {
-        JLog.w(msg);
-    }
-
-    public static void w(String msg) {
-        JLog.w(msg);
-    }
-
-    public static void w(Object[] array) {
-        JLog.w(array);
-    }
-
-    public static void w(String format, Object... args) {
-        JLog.w(format, args);
-    }
-
-    public static void w(String msg, Throwable tw) {
-        JLog.w(msg, tw);
-    }
-
-    public static void w(String prefix, Object msg) {
-        JLog.w(prefix, msg);
-    }
-
-    public static void w(String prefix, String msg) {
-        JLog.w(prefix, msg);
-    }
-
-    public static void w(String prefix, String msg, Throwable tw) {
-        JLog.w(prefix, msg, tw);
-    }
-
-    public static void wb(Object msg) {
-        JLog.enableBorder().w(msg);
-    }
-
-    public static void wb(String msg) {
-        JLog.enableBorder().w(msg);
-    }
-
-    public static void wb(Object[] array) {
-        JLog.enableBorder().w(array);
-    }
-
-    public static void wb(String format, Object... args) {
-        JLog.enableBorder().w(format, args);
-    }
-
-    public static void wb(String msg, Throwable tw) {
-        JLog.enableBorder().w(msg, tw);
-    }
-
-    public static void wb(String prefix, Object msg) {
-        JLog.enableBorder().w(prefix, msg);
-    }
-
-    public static void wb(String prefix, String msg) {
-        JLog.enableBorder().w(prefix, msg);
-    }
-
-    public static void wb(String prefix, String msg, Throwable tw) {
-        JLog.enableBorder().w(prefix, msg, tw);
-    }
-
-    //***************************** error log *******************************//
-
-    public static void e(Object msg) {
-        JLog.e(msg);
-    }
-
-    public static void e(String msg) {
-        JLog.e(msg);
-    }
-
-    public static void e(Object[] array) {
-        JLog.e(array);
-    }
-
-    public static void e(String format, Object... args) {
-        JLog.e(format, args);
-    }
-
-    public static void e(String msg, Throwable tw) {
-        JLog.e(msg, tw);
-    }
-
-    public static void e(String prefix, Object msg) {
-        JLog.e(prefix, msg);
-    }
-
-    public static void e(String prefix, String msg) {
-        JLog.e(prefix, msg);
-    }
-
-    public static void e(String prefix, String msg, Throwable tw) {
-        JLog.e(prefix, msg, tw);
-    }
-
-    public static void eb(Object msg) {
-        JLog.enableBorder().e(msg);
-    }
-
-    public static void eb(String msg) {
-        JLog.enableBorder().e(msg);
-    }
-
-    public static void eb(Object[] array) {
-        JLog.enableBorder().e(array);
-    }
-
-    public static void eb(String format, Object... args) {
-        JLog.enableBorder().e(format, args);
-    }
-
-    public static void eb(String msg, Throwable tw) {
-        JLog.enableBorder().e(msg, tw);
-    }
-
-    public static void eb(String prefix, Object msg) {
-        JLog.enableBorder().e(prefix, msg);
-    }
-
-    public static void eb(String prefix, String msg) {
-        JLog.enableBorder().e(prefix, msg);
-    }
-
-    public static void eb(String prefix, String msg, Throwable tw) {
-        JLog.enableBorder().e(prefix, msg, tw);
-    }
-
-    //***************************** XML format log *******************************//
-
-    public static void xml(String xml) {
-        if (!TextUtils.isEmpty(xml)) {
-            try {
-                JLog.xml(xml);
-            } catch (Exception ex) {
-                e(TAG, "xml", ex);
-            }
-        }
-    }
-
-    public static void xml(String prefix, String xml) {
-        if (!TextUtils.isEmpty(xml)) {
-            try {
-                JLog.xml(prefix, xml);
-            } catch (Exception ex) {
-                e(TAG, "xml", ex);
-            }
-        }
-    }
-
-    public static void xmlb(String xml) {
-        if (!TextUtils.isEmpty(xml)) {
-            try {
-                JLog.enableBorder().xml(xml);
-            } catch (Exception ex) {
-                e(TAG, "xmlb", ex);
-            }
-        }
-    }
-
-    public static void xmlb(String prefix, String xml) {
-        if (!TextUtils.isEmpty(xml)) {
-            try {
-                JLog.enableBorder().xml(prefix, xml);
-            } catch (Exception ex) {
-                e(TAG, "xmlb", ex);
-            }
-        }
-    }
-
-    //***************************** JSON format log  *******************************//
-
-    public static void json(String json) {
-        if (!TextUtils.isEmpty(json)) {
-            try {
-                JLog.json(json);
-            } catch (Exception ex) {
-                e(TAG, "json", ex);
-            }
-        }
-    }
-
-    public static void json(String prefix, String json) {
-        if (!TextUtils.isEmpty(json)) {
-            try {
-                JLog.json(prefix, json);
-            } catch (Exception ex) {
-                e(TAG, "json", ex);
-            }
-        }
-    }
-
-    public static void jsonb(String json) {
-        if (!TextUtils.isEmpty(json)) {
-            try {
-                JLog.enableBorder().json(json);
-            } catch (Exception ex) {
-                e(TAG, "jsonb", ex);
-            }
-        }
-    }
-
-    public static void jsonb(String prefix, String json) {
-        if (!TextUtils.isEmpty(json)) {
-            try {
-                JLog.enableBorder().json(prefix, json);
-            } catch (Exception ex) {
-                e(TAG, "jsonb", ex);
-            }
-        }
-    }
-
-    //***************************** enableBorder log *******************************//
-
-    public static void b(int logLevel, Object msg) {
-        JLog.enableBorder().log(logLevel, msg);
-    }
-
-    public static void b(int logLevel, String msg) {
-        JLog.enableBorder().log(logLevel, msg);
-    }
-
-    public static void b(int logLevel, Object[] array) {
-        JLog.enableBorder().log(logLevel, array);
-    }
-
-    public static void b(int logLevel, String format, Object... args) {
-        JLog.enableBorder().log(logLevel, format, args);
-    }
-
-    public static void b(int logLevel, String msg, Throwable tw) {
-        JLog.enableBorder().log(logLevel, msg, tw);
-    }
-
-    public static void b(int logLevel, String prefix, Object msg) {
-        JLog.enableBorder().log(logLevel, prefix, msg);
-    }
-
-    public static void b(int logLevel, String prefix, String msg) {
-        JLog.enableBorder().log(logLevel, prefix, msg);
-    }
-
-    public static void b(int logLevel, String prefix, String msg, Throwable tw) {
-        JLog.enableBorder().log(logLevel, prefix, msg, tw);
-    }
-
-    private static boolean isEmptyStr(String str) {
-        return TextUtils.isEmpty(str);
-    }
-
+private void defaultLogTest() {
+    Integer[] arrayTest = {1, 2, 3};
+    JLog.v("---------------------------------- v default test -------------------------------------------");
+
+    JLog.v(1);
+    JLog.v("111");
+    JLog.v(arrayTest);
+    JLog.v("Error1", new NullPointerException("log test"));
+    JLog.v("ame: %s, age = %d", "Jack", 18);
+    JLog.v(TAG, 1);
+    JLog.v(TAG, "111");
+    JLog.v(TAG, "Error2", new NullPointerException("log test"));
+    JLog.enableBorder().v(1);
+    JLog.enableBorder().v("111");
+    JLog.enableBorder().v(arrayTest);
+    JLog.enableBorder().v("Error3", new NullPointerException("log test"));
+    JLog.enableBorder().v("ame: %s, age = %d", "Jack", 18);
+    JLog.enableBorder().v(TAG, 1);
+    JLog.enableBorder().v(TAG, "111");
+    JLog.enableBorder().v(TAG, "Error4", new NullPointerException("log test"));
+
+    JLog.v("---------------------------------- d default test -------------------------------------------");
+
+    JLog.d(1);
+    JLog.d("111");
+    JLog.d(arrayTest);
+    JLog.d("Error1", new NullPointerException("log test"));
+    JLog.d("ame: %s, age = %d", "Jack", 18);
+    JLog.d(TAG, 1);
+    JLog.d(TAG, "111");
+    JLog.d(TAG, "Error2", new NullPointerException("log test"));
+    JLog.enableBorder().d(1);
+    JLog.enableBorder().d("111");
+    JLog.enableBorder().d(arrayTest);
+    JLog.enableBorder().d("Error3", new NullPointerException("log test"));
+    JLog.enableBorder().d("ame: %s, age = %d", "Jack", 18);
+    JLog.enableBorder().d(TAG, 1);
+    JLog.enableBorder().d(TAG, "111");
+    JLog.enableBorder().d(TAG, "Error4", new NullPointerException("log test"));
+
+    JLog.v("---------------------------------- i default test -------------------------------------------");
+
+    JLog.i(1);
+    JLog.i("111");
+    JLog.i(arrayTest);
+    JLog.i("Error1", new NullPointerException("log test"));
+    JLog.i("ame: %s, age = %d", "Jack", 18);
+    JLog.i(TAG, 1);
+    JLog.i(TAG, "111");
+    JLog.i(TAG, "Error2", new NullPointerException("log test"));
+    JLog.enableBorder().i(1);
+    JLog.enableBorder().i("111");
+    JLog.enableBorder().i(arrayTest);
+    JLog.enableBorder().i("Error3", new NullPointerException("log test"));
+    JLog.enableBorder().i("ame: %s, age = %d", "Jack", 18);
+    JLog.enableBorder().i(TAG, 1);
+    JLog.enableBorder().i(TAG, "111");
+    JLog.enableBorder().i(TAG, "Error4", new NullPointerException("log test"));
+
+    JLog.v("---------------------------------- w default test -------------------------------------------");
+
+    JLog.w(1);
+    JLog.w("111");
+    JLog.w(arrayTest);
+    JLog.w("Error1", new NullPointerException("log test"));
+    JLog.w("ame: %s, age = %d", "Jack", 18);
+    JLog.w(TAG, 1);
+    JLog.w(TAG, "111");
+    JLog.w(TAG, "Error2", new NullPointerException("log test"));
+    JLog.enableBorder().w(1);
+    JLog.enableBorder().w("111");
+    JLog.enableBorder().w(arrayTest);
+    JLog.enableBorder().w("Error3", new NullPointerException("log test"));
+    JLog.enableBorder().w("ame: %s, age = %d", "Jack", 18);
+    JLog.enableBorder().w(TAG, 1);
+    JLog.enableBorder().w(TAG, "111");
+    JLog.enableBorder().w(TAG, "Error4", new NullPointerException("log test"));
+
+    JLog.v("---------------------------------- e default test -------------------------------------------");
+
+    JLog.e(1);
+    JLog.e("111");
+    JLog.e(arrayTest);
+    JLog.e("Error1", new NullPointerException("log test"));
+    JLog.e("ame: %s, age = %d", "Jack", 18);
+    JLog.e(TAG, 1);
+    JLog.e(TAG, "111");
+    JLog.e(TAG, "Error2", new NullPointerException("log test"));
+    JLog.enableBorder().e(1);
+    JLog.enableBorder().e("111");
+    JLog.enableBorder().e(arrayTest);
+    JLog.enableBorder().e("Error3", new NullPointerException("log test"));
+    JLog.enableBorder().e("ame: %s, age = %d", "Jack", 18);
+    JLog.enableBorder().e(TAG, 1);
+    JLog.enableBorder().e(TAG, "111");
+    JLog.enableBorder().e(TAG, "Error4", new NullPointerException("log test"));
+
+    JLog.v("---------------------------------- b default test -------------------------------------------");
+
+    JLog.log(LogLevel.INFO, 1);
+    JLog.log(LogLevel.INFO, "111");
+    JLog.log(LogLevel.INFO, arrayTest);
+    JLog.log(LogLevel.INFO, "Error1", new NullPointerException("log test"));
+    JLog.log(LogLevel.INFO, "ame: %s, age = %d", "Jack", 18);
+    JLog.log(LogLevel.INFO, TAG, 1);
+    JLog.log(LogLevel.INFO, TAG, "111");
+    JLog.log(LogLevel.INFO, TAG, "Error2", new NullPointerException("log test"));
+
+    JLog.v("---------------------------------- json default test -------------------------------------------");
+
+    String json = getResources().getString(R.string.json);
+    JLog.enableBorder().json(TAG, json);
+
+    // json string format utils
+    JLog.i(TAG, "----> json string format test \n" + LogUtils.formatJson(json));
+
+    JLog.v("---------------------------------- xml default test -------------------------------------------");
+
+    String xml = getResources().getString(R.string.xml);
+    JLog.enableBorder().xml(TAG, xml);
+
+    // xml string format utils
+    JLog.i(TAG, "----> xml string format test \n" + LogUtils.formatXml(xml));
+}
+
+
+/**
+ * 2. Custom configuration to use.
+ * <p>
+ * Note: the {@link AppLog} is packaged based on {@link JLog} according to the situation of "android app".
+ * Of course, you can also use {@link JLog} directly.
+ * 
+ * <p>
+ * Reference: AppLog link
+ *            https://github.com/jiangminggithub/JLog/blob/master/simpleApp/src/main/java/com/jm/jlog/simple/utils/AppLog.java}
+ */
+private void configLogTest() {
+    // Use configuration to use with AppLog
+    AppLog.initAndroidAndFileLogConfig(getApplicationContext(), BuildConfig.DEBUG);
+
+    Integer[] arrayTest = {1, 2, 3};
+    AppLog.v("---------------------------------- v config test -------------------------------------------");
+
+    AppLog.v(1);
+    AppLog.v("111");
+    AppLog.v(arrayTest);
+    AppLog.v("Error1", new NullPointerException("log test"));
+    AppLog.v("ame: %s, age = %d", "Jack", 18);
+    AppLog.v(TAG, 1);
+    AppLog.v(TAG, "111");
+    AppLog.v(TAG, "Error2", new NullPointerException("log test"));
+    AppLog.vb(1);
+    AppLog.vb("111");
+    AppLog.vb(arrayTest);
+    AppLog.vb("Error3", new NullPointerException("log test"));
+    AppLog.vb("ame: %s, age = %d", "Jack", 18);
+    AppLog.vb(TAG, 1);
+    AppLog.vb(TAG, "111");
+    AppLog.vb(TAG, "Error4", new NullPointerException("log test"));
+
+    AppLog.v("---------------------------------- d config test -------------------------------------------");
+
+    AppLog.d(1);
+    AppLog.d("111");
+    AppLog.d(arrayTest);
+    AppLog.d("Error1", new NullPointerException("log test"));
+    AppLog.d("ame: %s, age = %d", "Jack", 18);
+    AppLog.d(TAG, 1);
+    AppLog.d(TAG, "111");
+    AppLog.d(TAG, "Error2", new NullPointerException("log test"));
+    AppLog.db(1);
+    AppLog.db("111");
+    AppLog.db(arrayTest);
+    AppLog.db("Error3", new NullPointerException("log test"));
+    AppLog.db("ame: %s, age = %d", "Jack", 18);
+    AppLog.db(TAG, 1);
+    AppLog.db(TAG, "111");
+    AppLog.db(TAG, "Error4", new NullPointerException("log test"));
+
+    AppLog.v("---------------------------------- i config test -------------------------------------------");
+
+    AppLog.i(1);
+    AppLog.i("111");
+    AppLog.i(arrayTest);
+    AppLog.i("Error1", new NullPointerException("log test"));
+    AppLog.i("ame: %s, age = %d", "Jack", 18);
+    AppLog.i(TAG, 1);
+    AppLog.i(TAG, "111");
+    AppLog.i(TAG, "Error2", new NullPointerException("log test"));
+    AppLog.ib(1);
+    AppLog.ib("111");
+    AppLog.ib(arrayTest);
+    AppLog.ib("Error3", new NullPointerException("log test"));
+    AppLog.ib("ame: %s, age = %d", "Jack", 18);
+    AppLog.ib(TAG, 1);
+    AppLog.ib(TAG, "111");
+    AppLog.ib(TAG, "Error4", new NullPointerException("log test"));
+
+    AppLog.v("---------------------------------- w config test -------------------------------------------");
+
+    AppLog.w(1);
+    AppLog.w("111");
+    AppLog.w(arrayTest);
+    AppLog.w("Error1", new NullPointerException("log test"));
+    AppLog.w("ame: %s, age = %d", "Jack", 18);
+    AppLog.w(TAG, 1);
+    AppLog.w(TAG, "111");
+    AppLog.w(TAG, "Error2", new NullPointerException("log test"));
+    AppLog.wb(1);
+    AppLog.wb("111");
+    AppLog.wb(arrayTest);
+    AppLog.wb("Error3", new NullPointerException("log test"));
+    AppLog.wb("ame: %s, age = %d", "Jack", 18);
+    AppLog.wb(TAG, 1);
+    AppLog.wb(TAG, "111");
+    AppLog.wb(TAG, "Error4", new NullPointerException("log test"));
+
+    AppLog.v("---------------------------------- e config test -------------------------------------------");
+
+    AppLog.e(1);
+    AppLog.e("111");
+    AppLog.e(arrayTest);
+    AppLog.e("Error1", new NullPointerException("log test"));
+    AppLog.e("ame: %s, age = %d", "Jack", 18);
+    AppLog.e(TAG, 1);
+    AppLog.e(TAG, "111");
+    AppLog.e(TAG, "Error2", new NullPointerException("log test"));
+    AppLog.eb(1);
+    AppLog.eb("111");
+    AppLog.eb(arrayTest);
+    AppLog.eb("Error3", new NullPointerException("log test"));
+    AppLog.eb("ame: %s, age = %d", "Jack", 18);
+    AppLog.eb(TAG, 1);
+    AppLog.eb(TAG, "111");
+    AppLog.eb(TAG, "Error4", new NullPointerException("log test"));
+
+    AppLog.v("---------------------------------- b config test -------------------------------------------");
+
+    AppLog.b(LogLevel.INFO, 1);
+    AppLog.b(LogLevel.INFO, "111");
+    AppLog.b(LogLevel.INFO, arrayTest);
+    AppLog.b(LogLevel.INFO, "Error1", new NullPointerException("log test"));
+    AppLog.b(LogLevel.INFO, "ame: %s, age = %d", "Jack", 18);
+    AppLog.b(LogLevel.INFO, TAG, 1);
+    AppLog.b(LogLevel.INFO, TAG, "111");
+    AppLog.b(LogLevel.INFO, TAG, "Error2", new NullPointerException("log test"));
+
+    AppLog.v("---------------------------------- json config test -------------------------------------------");
+
+    String json = getResources().getString(R.string.json);
+    AppLog.jsonb(TAG, json);
+
+    // json string format utils
+    AppLog.i(TAG, "----> json string format test \n" + LogUtils.formatJson(json));
+
+    AppLog.v("---------------------------------- xml config test -------------------------------------------");
+
+    String xml = getResources().getString(R.string.xml);
+    AppLog.xmlb(TAG, xml);
+
+    // xml string format utils
+    AppLog.i(TAG, "----> xml string format test \n" + LogUtils.formatXml(xml));
 }
 
 ```
