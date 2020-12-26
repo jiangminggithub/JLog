@@ -88,8 +88,6 @@ JLog.init(                                                 // Initialize JLog
 
 [Go to how to use with AppLog](https://github.com/jiangminggithub/JLog/blob/master/simpleApp/src/main/java/com/jm/jlog/simple/utils/AppLog.java)
 
-[Android app ]
-
 ### 2. simple use code
 
 ```java
