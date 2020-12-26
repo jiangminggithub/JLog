@@ -4,7 +4,11 @@ Powerful and flexible Android and Java log libraries that print logs to logcat, 
 
 ## Dependency
 
-[Dependency reference link](https://jitpack.io/#jiangminggithub/JLog/1.0.0)
+Latest: [![](https://jitpack.io/v/jiangminggithub/JLog.svg)](https://jitpack.io/#jiangminggithub/JLog) 
+
+1. [GitHub dependency config reference link](https://jitpack.io/#jiangminggithub/JLog/1.0.1) 
+
+2. [Gitee dependency config reference link](https://jitpack.io/#jiangming_gitee/JLog/1.0.1) 
 
 ### Step 1. Add the JitPack repository to your build file
 
